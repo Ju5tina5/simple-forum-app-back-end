@@ -1,0 +1,20 @@
+{
+  "name": "simple-forum-app-back-end",
+  "version": "1.0.0",
+  "description": "forum app backend for managing users topics posts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "J.P.",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "dotenv": "^16.0.0",
+    "email-validator": "^2.0.4",
+    "express": "^4.17.3",
+    "express-session": "^1.17.2",
+    "mongoose": "^6.2.9",
+    "nodemon": "^2.0.15"
+  }
+}
