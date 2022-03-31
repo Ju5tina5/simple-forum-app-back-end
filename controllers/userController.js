@@ -16,19 +16,21 @@ module.exports = {
     registerUser: async (req, res) => {
         const {user_name, email, password} = req.body;
 
-        const userNameExists = await userSchema.findOne({user_name})
+        const userNameExists = await userDb.findOne({user_name})
         if (userNameExists) return res.send({success: false, message: "User name already taken"})
 
-        const userEmailExists = await userSchema.findOne({email})
+        const userEmailExists = await userDb.findOne({email})
         if (userEmailExists) return res.send({success: false, message: "User with provided email already exists"})
 
         try{
-            const user = new userSchema();
-            user.user_name = user_name;
+            const user = new userDb();
+            user.user_name = user_name.toLowerCase();
+            user.email = email.toLowerCase();
             user.password =  await bcrypt.hash(password, 10);
-            await user.save();
-
-            res.send({success: true, message: 'User registered'})
+            const createdUser = await user.save({new: true});
+            res.send({success: true,
+                message: 'User registered',
+                user: {user_name:createdUser.user_name, email: createdUser.email, avatar: createdUser.user_avatar}})
         } catch (e) {
             console.log(e)
         }
