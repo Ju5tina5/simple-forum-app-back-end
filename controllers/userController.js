@@ -4,12 +4,16 @@ const userDb = require('../models/userSchema');
 module.exports = {
     loginUser: async (req, res) => {
         const {user_name, password} = req.body;
-        const userExists = await userDb.findOne({user_name})
+        const userExists = await userDb.findOne({user_name: user_name.toLowerCase()})
         if (!userExists) return res.send({success: false, message: "bad credentials"})
         const passMatch = await bcrypt.compare(password, userExists.password)
         if (passMatch) {
             req.session.user_name = userExists.user_name
-            return res.send({success: true, message: "Successfully logged in", user: {user_name: userExists.user_name, email: userExists.email, avatar: userExists.avatar}})
+            let userNameModified =  userExists.user_name.charAt(0).toUpperCase() + userExists.user_name.slice(1);
+            return res.send({
+                success: true,
+                message: "Successfully logged in",
+                user: {user_name: userNameModified, email: userExists.email, avatar: userExists.user_avatar}})
         }
         res.send({success: false, message: "bad credentials"})
     },
@@ -28,9 +32,11 @@ module.exports = {
             user.email = email.toLowerCase();
             user.password =  await bcrypt.hash(password, 10);
             const createdUser = await user.save({new: true});
-            res.send({success: true,
+            let userNameModified =  createdUser.user_name.charAt(0).toUpperCase() + createdUser.user_name.slice(1);
+            res.send({
+                success: true,
                 message: 'User registered',
-                user: {user_name:createdUser.user_name, email: createdUser.email, avatar: createdUser.user_avatar}})
+                user: {user_name: userNameModified, email: createdUser.email, avatar: createdUser.user_avatar}})
         } catch (e) {
             console.log(e)
         }
