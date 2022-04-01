@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const userDb = require('../models/userSchema');
+const discussionDb = require('../models/discussionSchema');
+const postsDb = require('../models/postSchema');
 
 module.exports = {
     loginUser: async (req, res) => {
@@ -13,7 +15,7 @@ module.exports = {
             return res.send({
                 success: true,
                 message: "Successfully logged in",
-                user: {user_name: userNameModified, email: userExists.email, avatar: userExists.user_avatar}})
+                user: {user_name: userNameModified, email: userExists.email, avatar: userExists.user_avatar, register_date: userExists.register_date}})
         }
         res.send({success: false, message: "bad credentials"})
     },
@@ -36,7 +38,7 @@ module.exports = {
             res.send({
                 success: true,
                 message: 'User registered',
-                user: {user_name: userNameModified, email: createdUser.email, avatar: createdUser.user_avatar}})
+                user: {user_name: userNameModified, email: createdUser.email, avatar: createdUser.user_avatar, register_date: createdUser.register_date}})
         } catch (e) {
             console.log(e)
         }
@@ -57,4 +59,16 @@ module.exports = {
         const updatedUser = await userSchema.findOneAndUpdate({user_name}, {$set: {avatar: avatar}}, {new: true});
         res.send({success: true, user: {user_name: updatedUser.user_name, avatar: updatedUser.avatar, money: updatedUser.money}});
     },
+    countUserData: async (req, res) => {
+        const {user_name} = req.session;
+        try{
+            const user = await userDb.findOne({user_name: user_name}, {password: false});
+            const topicsCount = await discussionDb.count({creator_username: user_name});
+            const postsCount = await postsDb.count({creator_username: user_name});
+            res.send({success: true, countData: {topicsCount, postsCount}})
+        }catch (e) {
+            res.send({success: false, message: e})
+            console.log(e)
+        }
+    }
 }

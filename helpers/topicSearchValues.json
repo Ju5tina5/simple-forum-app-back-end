@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Page",
+    "description": "Topics on page bugs/ suggestion or improvement"
+  },
+  {
+    "name": "Politics",
+    "description": "Topics about politics"
+  },
+  {
+    "name" : "LiveStyle",
+    "description": "Topics about live style"
+  },
+  {
+    "name": "Hobbies",
+    "description": "Topics about cool hobbies/profession"
+  },
+  {
+    "name": "Cinema",
+    "description": "Topics about new/ old/ favorite/ movies"
+  },
+  {
+    "name": "Other",
+    "description": "Other random topics"
+  }
+]
