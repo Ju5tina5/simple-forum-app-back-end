@@ -62,7 +62,6 @@ module.exports = {
     countUserData: async (req, res) => {
         const {user_name} = req.session;
         try{
-            const user = await userDb.findOne({user_name: user_name}, {password: false});
             const topicsCount = await discussionDb.count({creator_username: user_name});
             const postsCount = await postsDb.count({creator_username: user_name});
             res.send({success: true, countData: {topicsCount, postsCount}})
@@ -70,5 +69,24 @@ module.exports = {
             res.send({success: false, message: e})
             console.log(e)
         }
+    },
+    getUserWrittenItems: async (req, res) => {
+        const {number, type} = req.params
+        const {user_name} = req.session;
+        try{
+            let data;
+            if(type === 'discussions'){
+                data = await discussionDb.find({creator_username: user_name}).limit(number);
+            }else if(type === 'posts'){
+                data = await postsDb.find({creator_username: user_name}).limit(number);
+            }else{
+                return res.send({success: false, message: 'No type'})
+            }
+            res.send({success: true, userItems: data})
+        }catch (e) {
+            res.send({success: false, message: e})
+            console.log(e)
+        }
+
     }
 }

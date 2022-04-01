@@ -26,6 +26,15 @@ const discussionSchema = new Schema({
     unique_token: {
         type: String,
         required: true
+    },
+    post_count: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    lastModified: {
+        type: Number,
+        required: true,
     }
 })
 
