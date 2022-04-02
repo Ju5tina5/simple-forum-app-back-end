@@ -65,5 +65,26 @@ module.exports = {
         }catch (e) {
             console.log(e)
         }
+    },
+    getDiscussionsByTopicAndAmount: async (req, res) => {
+        const {topic, page} = req.params;
+        let skipAmount = (Number(page) - 1) * 10;
+        if(isNaN(skipAmount)) return res.send({success: false, message: 'Number not provided'})
+        let foundDiscussions;
+        let discussionsCount;
+        try{
+            if(topic === 'All'){
+                discussionsCount = await discussionDb.count();
+                foundDiscussions = await discussionDb.find().sort({timestamp: -1}).skip(skipAmount).limit(10)
+                res.send({success: true, foundDiscussions, discussionsCount})
+            }else{
+                if(!topicSearchValues.find( x => x.name === topic )) return res.send({success: false, message: 'Topic not found'})
+                discussionsCount = await discussionDb.count({topic_name: topic});
+                foundDiscussions = await discussionDb.find({topic_name: topic}).sort({timestamp: -1}).skip(skipAmount).limit(10)
+                res.send({success: true, foundDiscussions, discussionsCount})
+            }
+        }catch (e) {
+            console.log(e)
+        }
     }
 }
