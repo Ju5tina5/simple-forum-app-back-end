@@ -33,12 +33,10 @@ module.exports = {
             user.user_name = user_name.toLowerCase();
             user.email = email.toLowerCase();
             user.password =  await bcrypt.hash(password, 10);
-            const createdUser = await user.save({new: true});
-            let userNameModified =  createdUser.user_name.charAt(0).toUpperCase() + createdUser.user_name.slice(1);
+            await user.save({new: true});
             res.send({
                 success: true,
-                message: 'User registered',
-                user: {user_name: userNameModified, email: createdUser.email, avatar: createdUser.user_avatar, register_date: createdUser.register_date}})
+                message: 'User registered'})
         } catch (e) {
             console.log(e)
         }
@@ -52,12 +50,59 @@ module.exports = {
             console.log(e)
         }
     },
+    deleteUser: async (req, res) => {
+        const {password} = req.body;
+        const {user_name} = req.session;
+
+        const userExists = await userDb.findOne({user_name});
+        if(!userExists) return res.send({success: 'false', message: 'User does not exist'})
+
+        const match = await bcrypt.compare(password, userExists.password);
+        if(match){
+            try {
+                await postsDb.deleteMany({creator_username: user_name})
+                await discussionDb.deleteMany({creator_username: user_name})
+                await userDb.deleteOne({user_name})
+                res.send({success: false, message: `User ${user_name} removed from this God forsaken place`})
+            }catch (e) {
+                console.log(e)
+            }
+        }else{
+            return res.send({success: false, message: 'Bad credentials'})
+        }
+    },
+    changeUserPassword: async (req, res) => {
+        const {password, newPassword} = req.body;
+        const {user_name} = req.session;
+
+        const userExists = await userDb.findOne({user_name});
+        if(!userExists) return res.send({success: 'false', message: 'User does not exist'})
+
+        const match = await bcrypt.compare(password, userExists.password);
+
+        if(match){
+            try{
+                let hashPassword = await bcrypt.hash(newPassword, 10);
+                await userDb.findOneAndUpdate({user_name}, {$set: {password: hashPassword}})
+                res.send({success: true, message: 'Password successfully updated'})
+            }catch (e) {
+                console.log(e)
+            }
+        }else{
+            return res.send({success: false, message: 'Bad credentials'})
+        }
+
+    },
     updateUserAvatar: async (req, res) => {
         const {avatar} = req.body;
-        if(!avatar.includes('http')) res.send({success: false, message: 'Link not provided'});
         const {user_name} = req.session;
-        const updatedUser = await userSchema.findOneAndUpdate({user_name}, {$set: {avatar: avatar}}, {new: true});
-        res.send({success: true, user: {user_name: updatedUser.user_name, avatar: updatedUser.avatar, money: updatedUser.money}});
+        try {
+            const updatedUser = await userDb.findOneAndUpdate({user_name}, {$set: {user_avatar: avatar}}, {new: true});
+            res.send({success: true, message: 'Avatar photo changed', avatar: updatedUser.user_avatar})
+        }catch (e) {
+            console.log(e)
+            res.send({success: false, message: e})
+        }
     },
     countUserData: async (req, res) => {
         const {user_name} = req.session;
@@ -87,6 +132,5 @@ module.exports = {
             res.send({success: false, message: e})
             console.log(e)
         }
-
     }
 }

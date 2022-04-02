@@ -22,6 +22,10 @@ const postSchema = new Schema({
     links: {
         type: Array,
         required: false
+    },
+    discussion_token: {
+        type: String,
+        required: true
     }
 })
 

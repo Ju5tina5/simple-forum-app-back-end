@@ -1,7 +1,7 @@
 module.exports = {
     validateDiscussionData: (req, res, next) => {
         const {topic_name, title, description} = req.body;
-        const format = /[!@#$%^&*()+\-=\[\]{};':"\\|<>\/?]+/;
+        const format = /[!@#$%^&*()+\-=\[\]{};':"\\|<>\/]+/;
 
         if(topic_name.length === 0){
             return res.send({success: false, message: 'Subject Topic not provided'})
@@ -18,5 +18,5 @@ module.exports = {
             return res.send({success: false, message: "Description should be from 50 to 500 symbols long"})
         }
         next()
-    }
+    },
 }

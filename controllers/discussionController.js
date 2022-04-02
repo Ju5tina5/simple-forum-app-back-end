@@ -1,4 +1,5 @@
 const discussionDb = require('../models/discussionSchema');
+const postsDb = require('../models/postSchema');
 const { v4: uuidv4 } = require('uuid');
 const topicSearchValues = require('../helpers/topicSearchValues.json');
 
@@ -7,7 +8,7 @@ module.exports = {
         const {searchValue} = req.params;
         if(topicSearchValues.find(x => x.name === searchValue)){
             const latestData = await discussionDb.find({topic_name: searchValue}).sort({timestamp: -1}).limit(5)
-            res.send({success: true, latestData})
+            res.send({success: true, latestData});
         }else{
             res.send({success: false, message: 'No topic found'})
         }
@@ -33,6 +34,36 @@ module.exports = {
         } catch (e) {
             console.log(e)
             res.send({success: false, message: 'Error' + e})
+        }
+    },
+    deleteDiscussion: async (req, res) => {
+        const {uniqueToken} = req.params;
+
+        const foundDiscussion = await discussionDb.findOne({unique_token: uniqueToken});
+        if(!foundDiscussion) return res.send({success: false, message: 'No discussion found'})
+
+        try{
+            await postsDb.deleteMany({discussion_token: uniqueToken});
+            await discussionDb.deleteOne({unique_token: uniqueToken})
+            res.send({success: true, message: 'Item deleted'})
+        }catch (e) {
+            console.log(e)
+        }
+    },
+    updateDiscussion: async (req, res) => {
+        const {token} = req.params;
+        const { topic_name, title, description} = req.body;
+
+        const foundDiscussion = await discussionDb.findOne({unique_token: token});
+        if(!foundDiscussion) return res.send({success: false, message: 'No discussion found'})
+
+        try {
+            const updatedDiscussion = await discussionDb.findOneAndUpdate(
+                {unique_token: token},
+                {$set: {topic_name, title, description, lastModified: Date.now()}}, {new: true})
+            res.send({success: true, message: 'Discussion updated', updatedDiscussion})
+        }catch (e) {
+            console.log(e)
         }
     }
 }
