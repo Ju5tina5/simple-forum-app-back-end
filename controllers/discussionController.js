@@ -75,7 +75,7 @@ module.exports = {
         try{
             if(topic === 'All'){
                 discussionsCount = await discussionDb.count();
-                foundDiscussions = await discussionDb.find().sort({timestamp: -1}).skip(skipAmount).limit(10)
+                foundDiscussions = await discussionDb.find().sort({lastModified: -1}).skip(skipAmount).limit(10)
                 res.send({success: true, foundDiscussions, discussionsCount})
             }else{
                 if(!topicSearchValues.find( x => x.name === topic )) return res.send({success: false, message: 'Topic not found'})
@@ -88,16 +88,24 @@ module.exports = {
         }
     },
     getFavoriteDiscussions: async (req, res) => {
-        const {page} = req.params;
         const {localFavorites} = req.body;
-        let skipAmount = (Number(page) - 1) * 10;
         let returnData = [];
         try{
-            for (let i = skipAmount; i < localFavorites.length; i++) {
+            for (let i = 0; i < localFavorites.length; i++) {
                 let foundDiscussion = await discussionDb.findOne({unique_token: localFavorites[i]});
                 if(foundDiscussion) returnData.push(foundDiscussion)
             }
             res.send({success: true, returnData})
+        }catch (e) {
+            console.log(e)
+        }
+    },
+    getSingleDiscussion: async (req, res) => {
+        const {token} = req.params;
+        try {
+            const foundDiscussion = await discussionDb.findOne({unique_token: token})
+            if(!foundDiscussion) return res.send({success: false, message: "Discussion doesn't exist"});
+            res.send({success: true, foundDiscussion})
         }catch (e) {
             console.log(e)
         }

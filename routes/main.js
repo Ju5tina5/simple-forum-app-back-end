@@ -14,8 +14,12 @@ const {loginUser,
 //discussion data
 const {validateDiscussionData} = require('../middleware/discussionDataValidator');
 const {getLatestDiscussionsByTopic, uploadNewDiscussion, deleteDiscussion, updateDiscussion,
-    getDiscussionsByTopicAndAmount, getFavoriteDiscussions
+    getDiscussionsByTopicAndAmount, getFavoriteDiscussions, getSingleDiscussion
 } = require('../controllers/discussionController');
+
+//posts data
+const {getPostByToken, uploadNewPosts} = require('../controllers/postsController');
+const {validatePostData} = require('../middleware/postDataValidator');
 
 //user paths
 router.get('/logout', logOutUser);
@@ -30,9 +34,14 @@ router.get('/getUserCreatedItems/:number/:type', validateUserSession, getUserWri
 //discussion paths
 router.get('/getLatestDiscussionsByTopic/:searchValue', getLatestDiscussionsByTopic);
 router.get('/requestDiscussionDeletion/:uniqueToken', validateUserSession, deleteDiscussion);
+router.get('/getSingleDiscussion/:token', getSingleDiscussion);
 router.post('/uploadNewDiscussion', validateUserSession, validateDiscussionData, uploadNewDiscussion);
 router.post('/updateDiscussion/:token', validateUserSession, validateDiscussionData, updateDiscussion);
 router.get('/getDiscussions/:topic/:page', getDiscussionsByTopicAndAmount)
-router.post('/getFavoriteItems/:page', getFavoriteDiscussions)
+router.post('/getFavoriteItems', getFavoriteDiscussions)
+
+//posts paths
+router.get('/getPosts/:token/:page', getPostByToken)
+router.post('/createPost', validateUserSession, validatePostData, uploadNewPosts)
 
 module.exports = router;

@@ -14,7 +14,7 @@ module.exports = {
         if( title.length < 5 || title.length > 100){
             return res.send({success: false, message: "Subject should be from 5 to 100 symbols long"})
         }
-        if (description.length < 50 || description.length > 500) {
+        if (description.length < 50 || description.length > 1000) {
             return res.send({success: false, message: "Description should be from 50 to 500 symbols long"})
         }
         next()
