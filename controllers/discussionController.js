@@ -86,5 +86,20 @@ module.exports = {
         }catch (e) {
             console.log(e)
         }
+    },
+    getFavoriteDiscussions: async (req, res) => {
+        const {page} = req.params;
+        const {localFavorites} = req.body;
+        let skipAmount = (Number(page) - 1) * 10;
+        let returnData = [];
+        try{
+            for (let i = skipAmount; i < localFavorites.length; i++) {
+                let foundDiscussion = await discussionDb.findOne({unique_token: localFavorites[i]});
+                if(foundDiscussion) returnData.push(foundDiscussion)
+            }
+            res.send({success: true, returnData})
+        }catch (e) {
+            console.log(e)
+        }
     }
 }

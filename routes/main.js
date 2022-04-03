@@ -14,7 +14,7 @@ const {loginUser,
 //discussion data
 const {validateDiscussionData} = require('../middleware/discussionDataValidator');
 const {getLatestDiscussionsByTopic, uploadNewDiscussion, deleteDiscussion, updateDiscussion,
-    getDiscussionsByTopicAndAmount
+    getDiscussionsByTopicAndAmount, getFavoriteDiscussions
 } = require('../controllers/discussionController');
 
 //user paths
@@ -33,5 +33,6 @@ router.get('/requestDiscussionDeletion/:uniqueToken', validateUserSession, delet
 router.post('/uploadNewDiscussion', validateUserSession, validateDiscussionData, uploadNewDiscussion);
 router.post('/updateDiscussion/:token', validateUserSession, validateDiscussionData, updateDiscussion);
 router.get('/getDiscussions/:topic/:page', getDiscussionsByTopicAndAmount)
+router.post('/getFavoriteItems/:page', getFavoriteDiscussions)
 
 module.exports = router;
