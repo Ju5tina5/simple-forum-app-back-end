@@ -15,7 +15,7 @@ module.exports = {
             return res.send({
                 success: true,
                 message: "Successfully logged in",
-                user: {user_name: userNameModified, email: userExists.email, avatar: userExists.user_avatar, register_date: userExists.register_date}})
+                user: {user_name: userNameModified, email: userExists.email, avatar: userExists.user_avatar, register_date: userExists.register_date, newActivity: userExists.newActivity}})
         }
         res.send({success: false, message: "bad credentials"})
     },
@@ -121,15 +121,31 @@ module.exports = {
         try{
             let data;
             if(type === 'discussions'){
-                data = await discussionDb.find({creator_username: user_name}).limit(number);
+                data = await discussionDb.find({creator_username: user_name}).sort({timestamp: -1}).limit(number);
+                return res.send({success: true, userItems: data})
             }else if(type === 'posts'){
-                data = await postsDb.find({creator_username: user_name}).limit(number);
+                let titles = [];
+                data = await postsDb.find({creator_username: user_name}).sort({timestamp: -1}).limit(number);
+                for (let i = 0; i < data.length; i++) {
+                    let title = await discussionDb.findOne({unique_token: data[i].discussion_token}, {title: 1});
+                    titles.push(title)
+                }
+                res.send({success: true, userItems: {data, titles}})
             }else{
                 return res.send({success: false, message: 'No type'})
             }
-            res.send({success: true, userItems: data})
+
         }catch (e) {
             res.send({success: false, message: e})
+            console.log(e)
+        }
+    },
+    deleteActivities: async (req, res) => {
+        const {user_name} = req.session;
+        try{
+            await userDb.findOneAndUpdate({user_name}, {$set: {newActivity: []}})
+            return res.send({success: true})
+        }catch (e) {
             console.log(e)
         }
     }

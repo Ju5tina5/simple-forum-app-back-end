@@ -23,6 +23,10 @@ const userSchema = new Schema({
         type: Number,
         required: true,
         default: Date.now()
+    },
+    newActivity: {
+        type: Array,
+        required: false
     }
 })
 
