@@ -33,7 +33,8 @@ module.exports = {
             user.user_name = user_name.toLowerCase();
             user.email = email.toLowerCase();
             user.password =  await bcrypt.hash(password, 10);
-            await user.save({new: true});
+            user.register_date = Date.now();
+            await user.save();
             res.send({
                 success: true,
                 message: 'User registered'})
@@ -60,6 +61,7 @@ module.exports = {
         const match = await bcrypt.compare(password, userExists.password);
         if(match){
             try {
+                //delete all user posts and discussions
                 await postsDb.deleteMany({creator_username: user_name})
                 await discussionDb.deleteMany({creator_username: user_name})
                 await userDb.deleteOne({user_name})

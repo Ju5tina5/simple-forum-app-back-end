@@ -27,6 +27,7 @@ module.exports = {
             discuss.topic_name = topic_name;
             discuss.title = title.toLowerCase();
             discuss.description = description;
+            discuss.timestamp =  Date.now();
             discuss.unique_token = uuidv4();
             discuss.lastModified = Date.now();
             await discuss.save();
@@ -91,6 +92,7 @@ module.exports = {
         const {localFavorites} = req.body;
         let returnData = [];
         try{
+            // check if discussion with id still exist
             for (let i = 0; i < localFavorites.length; i++) {
                 let foundDiscussion = await discussionDb.findOne({unique_token: localFavorites[i]});
                 if(foundDiscussion) returnData.push(foundDiscussion)

@@ -22,7 +22,6 @@ const userSchema = new Schema({
     register_date: {
         type: Number,
         required: true,
-        default: Date.now()
     },
     newActivity: {
         type: Array,

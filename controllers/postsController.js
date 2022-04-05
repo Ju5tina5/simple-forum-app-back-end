@@ -11,6 +11,7 @@ module.exports = {
             let posts = await postsDb.find({discussion_token: token}).sort({timestamp: -1}).skip(skipAmount).limit(10)
             let modifiedPosts = [];
             for (let i = 0; i < posts.length; i++) {
+                // adding user data to post
                 let user = await userDb.findOne({user_name: posts[i].creator_username}, {password: false, email: false})
                 modifiedPosts.push({post: posts[i], creator: user})
             }
@@ -23,11 +24,16 @@ module.exports = {
         const {user_name} = req.session;
         const {description, discussion_token} = req.body;
 
+
+        //validation for youtube link
         let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
 
+        //replace all link in provided text with html tags depending on link
         let newDescription = description.replace(/(https?\:\/\/)?([^\.\s]+)?[^\.\s]+\.[^\s]+/gi, (match) => {
+
             if(regExp.test(match)){
                 let canUse = match.match(regExp);
+                // canUse[2] is youtube video id
                 if(canUse[2].length === 11){
                     return '<iframe width="100%" height="200" src="//www.youtube.com/embed/' + canUse[2] + '"  allowfullscreen></iframe>'
                 }
@@ -50,6 +56,7 @@ module.exports = {
                 {unique_token: discussion_token},
                 {$set: {lastModified: Date.now()}, $inc: {post_count: 1}}, {new: true})
 
+            // post creator isn't discussion creator, push new Activity to discussion creator DB.
             if(updatedDiscussion.creator_username !== user_name){
                 let activityObject = {post_author: user_name, posted_on: updatedDiscussion.title, discussion_token: updatedDiscussion.unique_token}
                 await userDb.findOneAndUpdate({user_name: updatedDiscussion.creator_username}, {$push: {newActivity: {$each: [activityObject], $position: 0}}})

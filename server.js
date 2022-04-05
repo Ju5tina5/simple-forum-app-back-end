@@ -6,9 +6,7 @@ const router = require('./routes/main')
 require('dotenv').config();
 
 app.use(express.json());
-app.listen(process.env.PORT, () => {
-    console.log(`Server is listening on port ${process.env.PORT}`)
-})
+app.listen(process.env.PORT)
 
 // Cors validation
 app.use((req, res, next) => {
@@ -29,7 +27,9 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }
+    cookie: {
+        secure: false,
+    }
 }))
 
 mongoose.connect(process.env.MONGO_DB)

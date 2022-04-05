@@ -21,7 +21,6 @@ const discussionSchema = new Schema({
     timestamp: {
         type: Number,
         required: true,
-        default: Date.now()
     },
     unique_token: {
         type: String,

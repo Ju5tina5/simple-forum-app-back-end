@@ -10,6 +10,12 @@ module.exports = {
     },
     validateUser: (req, res, next) => {
         const {user_name, password, passwordTwo} = req.body
+        const format = /[!@#$%^&*()+\-=\[\]{};':"\\|<>\/]+/;
+
+        if (format.test(user_name)) {
+            return res.send({success: false, message: 'Symbols not allowed in user name'})
+        }
+
         if (user_name.length > 15 || user_name.length < 5) return res.send({
             success: false,
             message: 'User name length not correct'
